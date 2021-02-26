@@ -1,22 +1,22 @@
 import { Client } from "bloxy";
-import got from "got";
-import axios from "axios";
 import { RESTResponseDataType } from "bloxy/dist/interfaces/RESTInterfaces";
 
 interface AxiosResponse {
-  statusCode: any;
-  body: any;
+  statusCode: number;
+  body: string;
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
   headers: any;
 }
 
 const { ipcRenderer } = window.require("electron");
 
+/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 const pendingPromises: { [key: string]: (reply: any) => void } = {};
 
 // TODO Rewrite it to use ipcRenderer.invoke()
 
-function fetchDataAsync<T>(data: any): Promise<T> {
-  return new Promise((resolve, reject) => {
+function fetchDataAsync<T>(data: unknown): Promise<T> {
+  return new Promise(resolve => {
     const randomId =
       Math.random()
         .toString(36)
@@ -24,7 +24,7 @@ function fetchDataAsync<T>(data: any): Promise<T> {
       Math.random()
         .toString(36)
         .substring(2, 15);
-    pendingPromises[randomId] = (reply: any) => resolve(reply);
+    pendingPromises[randomId] = (reply: T) => resolve(reply);
     ipcRenderer.send("axiosRequest", randomId, data);
   });
 }

@@ -1,4 +1,3 @@
-import fetchData from "./fetchData";
 import bloxyClient from "./bloxyClient";
 import { shell } from "electron";
 
@@ -12,7 +11,6 @@ const launcher = (
 export default async function launchGame(
   placeId: number | string | null
 ): Promise<void> {
-  // const ticket = await retrieveAuthToken();
   const ticket = await bloxyClient.apis.authAPI.getAuthTicket();
   const launcherLink = launcher(
     ticket.authTicket,

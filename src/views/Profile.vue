@@ -107,7 +107,7 @@ import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { getHashUrl } from "@/util/robloxUtil";
 import axios from "axios";
-import { Mesh, Object3D, SpotLight } from "three";
+import { Mesh } from "three";
 
 interface Presence {
   userPresenceType: number;

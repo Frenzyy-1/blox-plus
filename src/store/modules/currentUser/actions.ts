@@ -1,4 +1,4 @@
-import { ActionTree, CommitOptions } from "vuex";
+import { ActionTree } from "vuex";
 import { CurrentUserState, Friend, User } from "./types";
 import { RootState } from "../../types";
 import bloxyClient from "@/util/bloxyClient";
