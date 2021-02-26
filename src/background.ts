@@ -41,12 +41,13 @@ function createWindow() {
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
       nodeIntegration: (process.env
         .ELECTRON_NODE_INTEGRATION as unknown) as boolean
-      // webSecurity: false
     },
     frame: true // TODO Add custom title bar
   });
-  // win.removeMenu(); // TODO This causes issues
-  win.setTitle("Roblox");
+  // ? win.removeMenu() causes a few bugs, so disable it only in production
+  if (!((process.env.ELECTRON_NODE_INTEGRATION as unknown) as boolean))
+    win.removeMenu();
+  win.setTitle("Blox+");
 
   win.on("page-title-updated", e => e.preventDefault());
 
