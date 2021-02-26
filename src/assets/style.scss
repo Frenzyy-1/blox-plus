@@ -1,0 +1,225 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap");
+
+@import "./util/blur";
+@import "./util/presence";
+
+@import "./components/groupCard";
+
+html {
+  font-family: "Montserrat", sans-serif;
+}
+
+*::-webkit-scrollbar {
+  width: 1em;
+}
+
+*::-webkit-scrollbar-track {
+  @apply bg-light-600;
+  @apply rounded-full;
+}
+
+*::-webkit-scrollbar-corner {
+  @apply bg-light-500;
+}
+
+*::-webkit-scrollbar-thumb {
+  @apply bg-light-700;
+  @apply rounded-full;
+}
+
+.dark {
+  *::-webkit-scrollbar-track {
+    @apply bg-dark-600;
+  }
+
+  *::-webkit-scrollbar-corner {
+    @apply bg-dark-600;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    @apply bg-dark-500;
+  }
+}
+
+/* TODO Find a better way to do this */
+.shimmer-primary {
+  background: #3a3a3a;
+  background-image: linear-gradient(
+    to right,
+    #3a3a3a 0%,
+    #424242 20%,
+    #3a3a3a 40%,
+    #3a3a3a 100%
+  );
+
+  background-repeat: no-repeat;
+  background-size: 800px;
+  display: inline-block;
+  position: relative;
+
+  animation-duration: 2s;
+  animation-fill-mode: forwards;
+  animation-iteration-count: infinite;
+  animation-name: placeholderShimmer;
+  animation-timing-function: linear;
+  -webkit-animation-duration: 2s;
+  -webkit-animation-fill-mode: forwards;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-name: placeholderShimmer;
+  -webkit-animation-timing-function: linear;
+}
+
+.shimmer-secondary {
+  background: #2d2d2d;
+  background-image: linear-gradient(
+    to right,
+    #2d2d2d 0%,
+    #313131 20%,
+    #2d2d2d 40%,
+    #2d2d2d 100%
+  );
+
+  background-repeat: no-repeat;
+  background-size: 800px;
+  display: inline-block;
+  position: relative;
+
+  animation-duration: 2s;
+  animation-fill-mode: forwards;
+  animation-iteration-count: infinite;
+  animation-name: placeholderShimmer;
+  animation-timing-function: linear;
+  -webkit-animation-duration: 2s;
+  -webkit-animation-fill-mode: forwards;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-name: placeholderShimmer;
+  -webkit-animation-timing-function: linear;
+}
+
+.shimmer-tertiary {
+  background: #3e3e3e;
+  background-image: linear-gradient(
+    to right,
+    #3e3e3e 0%,
+    #494949 20%,
+    #3e3e3e 40%,
+    #3e3e3e 100%
+  );
+
+  background-repeat: no-repeat;
+  background-size: 800px;
+  display: inline-block;
+  position: relative;
+
+  animation-duration: 2s;
+  animation-fill-mode: forwards;
+  animation-iteration-count: infinite;
+  animation-name: placeholderShimmer;
+  animation-timing-function: linear;
+  -webkit-animation-duration: 2s;
+  -webkit-animation-fill-mode: forwards;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-name: placeholderShimmer;
+  -webkit-animation-timing-function: linear;
+}
+
+@keyframes placeholderShimmer {
+  0% {
+    background-position: -468px 0;
+  }
+
+  100% {
+    background-position: 468px 0;
+  }
+}
+
+@-webkit-keyframes placeholderShimmer {
+  0% {
+    background-position: -468px 0;
+  }
+
+  100% {
+    background-position: 468px 0;
+  }
+}
+
+.v-context {
+  &,
+  & ul {
+    z-index: 999;
+    min-width: 12rem;
+    @apply text-base;
+    @apply fixed;
+    @apply block;
+    @apply shadow;
+    @apply outline-none;
+    @apply border-2;
+    @apply rounded-lg;
+    @apply p-2;
+
+    @apply bg-light-400;
+    @apply border-light-600;
+    a,
+    button,
+    .link {
+      @apply font-medium;
+      @apply p-2;
+      @apply my-1;
+      @apply rounded-lg;
+      @apply w-full;
+      @apply block;
+      @apply text-left;
+      position: relative;
+      &:hover {
+        @apply bg-light-600;
+      }
+      &.context-success {
+        @apply text-green-600;
+      }
+      &.context-danger {
+        @apply text-red-500;
+      }
+      &:first-child {
+        @apply m-0;
+        @apply mb-1;
+      }
+      &:last-child {
+        @apply m-0;
+        @apply mt-1;
+      }
+    }
+    hr {
+      @apply my-2;
+      @apply border-light-600;
+    }
+    p {
+      @apply px-2;
+    }
+
+    &__sub {
+      > *:first-child {
+        content: "\203A";
+        float: right;
+      }
+      > ul {
+        display: none;
+      }
+    }
+  }
+
+  .dark &,
+  .dark & ul {
+    @apply bg-dark-800;
+    @apply border-dark-600;
+    a,
+    button,
+    .link {
+      &:hover {
+        @apply bg-dark-700;
+      }
+    }
+    hr {
+      @apply border-dark-600;
+    }
+  }
+}

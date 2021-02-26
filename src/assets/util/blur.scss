@@ -1,0 +1,12 @@
+$blurVariants: 1, 2, 4, 6, 8, 10;
+@each $blurVariant in $blurVariants {
+  @if $blurVariant == 1 {
+    .blur {
+      backdrop-filter: blur($blurVariant * 1px);
+    }
+  } @else {
+    .blur-#{$blurVariant} {
+      backdrop-filter: blur($blurVariant * 1px);
+    }
+  }
+}

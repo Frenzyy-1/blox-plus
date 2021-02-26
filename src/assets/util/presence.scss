@@ -1,0 +1,39 @@
+.presence-offline,
+.presence-0,
+.legacy-presence-0 {
+  // do nothing
+  @apply place-items-end;
+  &.with-text::before {
+    content: "Offline";
+  }
+}
+
+.presence-online,
+.presence-1,
+.legacy-presence-1 {
+  @apply text-blue-600;
+  @apply dark:text-blue-400;
+  &.with-text::before {
+    content: "Online";
+  }
+}
+
+.presence-playing,
+.presence-2,
+.legacy-presence-3 {
+  @apply text-green-700;
+  @apply dark:text-green-500;
+  &.with-text::before {
+    content: "Playing";
+  }
+}
+
+.presence-studio,
+.presence-3,
+.legacy-presence-2 {
+  @apply text-orange-600;
+  @apply dark:text-orange-400;
+  &.with-text::before {
+    content: "Studio";
+  }
+}

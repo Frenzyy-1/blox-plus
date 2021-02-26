@@ -1,0 +1,103 @@
+.group-card {
+  @apply relative;
+  @apply inline-block;
+
+  @apply w-64;
+  @apply h-64;
+
+  @apply rounded-lg;
+  @apply shadow-md;
+
+  @apply bg-light-500;
+  @apply dark:bg-dark-800;
+
+  &:hover .bg-content .image,
+  &:focus .bg-content .image {
+    transform: scale(1.1);
+  }
+
+  &.large {
+    @apply w-96;
+    & .content {
+      & .group-info {
+        & .group-role,
+        & .group-name {
+          width: 90%;
+        }
+      }
+    }
+  }
+
+  & .bg-content {
+    @apply absolute;
+    @apply top-0;
+    @apply right-0;
+    @apply bottom-0;
+    @apply left-0;
+
+    @apply overflow-hidden;
+
+    @apply rounded-lg;
+
+    & .image {
+      @apply absolute;
+      @apply top-0;
+      @apply right-0;
+      @apply bottom-0;
+      @apply left-0;
+
+      @apply bg-no-repeat;
+      @apply bg-cover;
+      @apply bg-center;
+
+      @apply transition-transform;
+      @apply duration-500;
+    }
+  }
+
+  & .content {
+    @apply w-full;
+    @apply h-full;
+    @apply p-4;
+
+    @apply overflow-hidden;
+
+    @apply blur-2;
+    @apply rounded;
+    @apply bg-gradient-to-b;
+    @apply from-light-400;
+    @apply dark:from-dark-700;
+    @apply to-transparent;
+
+    & .group-info {
+      @apply flex-grow;
+      @apply max-w-full;
+    }
+
+    & .group-name {
+      @apply text-lg;
+      @apply font-semibold;
+    }
+
+    & .group-role {
+      @apply text-sm;
+      @apply truncate;
+      @apply max-w-full;
+      & > span {
+        @apply font-semibold;
+      }
+    }
+
+    & .member-count {
+      @apply text-center;
+      & .title {
+        @apply text-sm;
+        @apply font-medium;
+      }
+      & .amount {
+        @apply text-lg;
+        @apply font-semibold;
+      }
+    }
+  }
+}
