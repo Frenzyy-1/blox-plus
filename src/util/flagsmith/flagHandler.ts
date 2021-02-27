@@ -1,27 +1,24 @@
 import flagsmith, { IFlags, IRetrieveInfo } from "flagsmith";
-import NodeCache from "node-cache";
 import VueX from "@/store/index";
 
 class Flagsmith {
-  private flags: NodeCache;
-
   constructor() {
-    this.flags = new NodeCache();
+    this.init();
+  }
 
-    flagsmith.init({
+  private async init() {
+    await flagsmith.init({
       environmentID: process.env.VUE_APP_FLAGSMITH_ENVIRONMENT_ID || "",
       cacheFlags: true,
-      onChange: this.flagChange
+      onChange: this.flagChange.bind(this),
+      preventFetch: true
     });
+    await flagsmith.getFlags();
   }
 
-  private async fetchFlags() {
-    const flagsmithFlags = await flagsmith.getFlags();
-    VueX.commit("flagsChanged", flagsmithFlags);
-  }
-
-  private async flagChange(oldFlags: IFlags, params: IRetrieveInfo) {
-    this.fetchFlags();
+  private async flagChange(flags: IFlags, params: IRetrieveInfo) {
+    VueX.commit("flagsChanged", flags);
+    console.log("flags updated");
   }
 }
 

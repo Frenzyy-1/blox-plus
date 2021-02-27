@@ -10,6 +10,26 @@ const store: StoreOptions<RootState> = {
   modules: {
     games,
     currentUser
+  },
+  state: {
+    flags: {}
+  },
+  mutations: {
+    flagsChanged(state, payload) {
+      if (!payload) return;
+      Object.entries(payload).forEach(([key, _data]) => {
+        const data = _data as {
+          id: number;
+          enabled?: boolean;
+          value?: unknown;
+        };
+        if (data.enabled !== undefined && data.enabled !== null) {
+          Vue.set(state.flags, key, data.enabled);
+        } else if (data.value !== undefined && data.value !== null) {
+          Vue.set(state.flags, key, data.value);
+        }
+      });
+    }
   }
 };
 
