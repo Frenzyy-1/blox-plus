@@ -17,6 +17,7 @@
     "axios": "^0.21.1",
     "bloxy": "^5.7.3",
     "core-js": "^3.8.2",
+    "electron-store": "^7.0.2",
     "electron-updater": "^4.3.5",
     "flagsmith-nodejs": "^1.0.8",
     "got": "^11.8.1",

@@ -10,7 +10,10 @@ import {
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import installExtension, { VUEJS_DEVTOOLS } from "electron-devtools-installer";
 import axios, { AxiosResponse } from "axios";
+import Store from "electron-store";
 const isDevelopment = process.env.NODE_ENV !== "production";
+
+const store = new Store();
 
 // Set axios defaults
 // axios.defaults.headers["cookie"] = `.ROBLOSECURITY=${ROBLOSECURITY};`;
@@ -60,6 +63,32 @@ function createWindow() {
     // Load the index.html when not in development
     win.loadURL("app://./index.html");
   }
+
+  {
+    const localStorageJson = store.get("localStorage") as string;
+    if (localStorageJson) {
+      const localStorage = JSON.parse(localStorageJson) as {
+        [key: string]: unknown;
+      };
+      Object.entries(localStorage).forEach((key, value) => {
+        const append = (typeof value === "string" && '"') || "";
+        if (win)
+          win.webContents.executeJavaScript(
+            `window.localStorage.setItem("${key}", ${append}${value}${append})`
+          );
+      });
+    }
+  }
+
+  win.on("close", () => {
+    if (win)
+      win.webContents
+        .executeJavaScript("JSON.stringify({...window.localStorage})", true)
+        .then(localStorageJson => {
+          store.set("localStorage", localStorageJson);
+        });
+    return true;
+  });
 
   win.on("closed", () => {
     win = null;
@@ -176,46 +205,31 @@ async function axiosRequest(event: Electron.IpcMainInvokeEvent, data: any) {
     body: response.data,
     headers: response.headers
   };
-  // axios(data)
-  //   .then(response => {
-  //     apiHistory.push({
-  //       status: response.status,
-  //       method: data.method,
-  //       url: data.url
-  //     });
-  //     return {
-  //       statusCode: response.status,
-  //       body: response.data,
-  //       headers: response.headers
-  //     };
-  //   })
-  //   .catch(error => {
-  //     if (error.response) {
-  //       apiHistory.push({
-  //         status: error.response.status,
-  //         method: data.method,
-  //         url: data.url
-  //       });
-  //       console.log(`[AXIOS/${error.response.status}] ${error.message}`);
-  //       console.log(error.response.data);
-  //       return {
-  //         statusCode: error.response.status,
-  //         body: error.response.data,
-  //         headers: error.response.headers,
-  //         isError: true
-  //       };
-  //     }
-  //   });
 }
 
 /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 function retrieveRobloxCookie(event: Electron.IpcMainInvokeEvent) {
-  return undefined;
+  return {
+    cookie: store.get("roblox.cookie"),
+    usePassword: store.get("roblox.usesPassword") || false
+  };
+}
+
+function saveRobloxCookie(
+  event: Electron.IpcMainInvokeEvent,
+  cookie: string | { cookie: string },
+  usesPassword = false
+) {
+  if (typeof cookie !== "string") cookie = cookie.cookie;
+  store.set("roblox.cookie", cookie);
+  store.set("roblox.usesPassword", usesPassword);
+  return true;
 }
 
 ipc.on("axiosRequest", axiosRequestLegacy);
 ipc.handle("axios", axiosRequest);
 ipc.handle("getApiHistory", getAPIHistory);
+ipc.handle("saveRobloxCookie", saveRobloxCookie);
 ipc.handle("retrieveRobloxCookie", retrieveRobloxCookie);
 
 // Exit cleanly on request from parent process in development mode.

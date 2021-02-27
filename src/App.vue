@@ -1,6 +1,6 @@
 <template>
-  <router-view v-if="doRender" />
-  <login v-else-if="showLogin" @login="doLogin" />
+  <router-view v-if="doRender && !showLogin" />
+  <login v-else-if="showLogin" @login="cookieInputEvent" />
   <div v-else>
     <div class="grid place-items-center h-screen">
       <div class="text-center">
@@ -25,51 +25,76 @@ import { ipcRenderer } from "electron";
 @Component<App>({
   components: { Login, LoadingSpinner },
   mounted() {
-    this.doLogin();
+    this.appStarted();
   }
 })
 export default class App extends Vue {
   doRender = false;
   showLogin = false;
+  showMasterPasswordPrompt = false;
 
-  private async testCookie() {
-    if (bloxyClient.user?.name && bloxyClient.user.id) return true;
-    return false;
+  private async loginFailed(error?: string) {
+    console.warn("login error", error);
+    this.showLogin = true;
   }
 
-  private async login() {
-    await bloxyClient.login();
-    await bloxyClient.getUser(bloxyClient.user ? bloxyClient.user.id : 1);
+  private async attemptLogin() {
+    this.showLogin = false;
+    let authSuccess = true;
+    await bloxyClient.login().catch(error => {
+      this.loginFailed(error);
+      authSuccess = false;
+    });
+    await bloxyClient
+      .getUser(bloxyClient.user ? bloxyClient.user.id : 1)
+      .catch(error => {
+        this.loginFailed(error);
+        authSuccess = false;
+      });
+    if (authSuccess) this.doRender = true;
   }
 
-  private async doLogin(cookie?: string) {
-    if (cookie) {
-      bloxyClient.options.credentials = {
-        ...bloxyClient.options.credentials,
-        cookie
-      };
+  private async setCookie(data: {
+    cookie: string;
+    usesPassword?: boolean;
+    password?: string;
+    updateIpc?: boolean;
+  }) {
+    const { cookie, usesPassword, updateIpc } = data;
+    if (updateIpc) {
+      const status = await ipcRenderer.invoke("saveRobloxCookie", {
+        cookie,
+        usesPassword
+      });
+      if (!status) {
+        console.warn("Could not set cookie via ipcRenderer");
+      }
     }
-    if (bloxyClient.options.credentials?.cookie) {
-      await this.login();
-      if (this.testCookie()) this.doRender = true;
-      else {
-        // TODO inform user that we could not log in
+    bloxyClient.options.credentials = {
+      ...bloxyClient.options.credentials,
+      cookie: cookie
+    };
+    this.attemptLogin();
+  }
+
+  private async appStarted() {
+    const ipcStoredCookie = (await ipcRenderer.invoke(
+      "retrieveRobloxCookie"
+    )) as { cookie: string | undefined; usesPassword: boolean } | undefined;
+    if (ipcStoredCookie && ipcStoredCookie.cookie) {
+      if (ipcStoredCookie.usesPassword) {
+        this.showMasterPasswordPrompt = true;
+      } else {
+        console.log(ipcStoredCookie);
+        this.setCookie({ cookie: ipcStoredCookie.cookie });
       }
     } else {
-      // render login
-      console.log("no cookie");
-      const ipcStoredCookie = (await ipcRenderer.invoke(
-        "retrieveRobloxCookie"
-      )) as string | undefined;
-      if (ipcStoredCookie) {
-        bloxyClient.options.credentials = {
-          ...bloxyClient.options.credentials,
-          cookie: ipcStoredCookie
-        };
-      } else {
-        this.showLogin = true;
-      }
+      this.showLogin = true;
     }
+  }
+
+  private async cookieInputEvent(cookie: string) {
+    this.setCookie({ cookie, updateIpc: true });
   }
 }
 </script>
