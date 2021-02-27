@@ -7,8 +7,13 @@
         class="h-32 w-32 rounded-full mx-auto border-2 bg-light-500 border-light-600 dark:bg-dark-500 dark:border-dark-600 transition duration-200"
         :class="{ 'shimmer-primary': !authenticatedUser.thumbnail }"
       />
-      <p>{{ authenticatedUser.displayname }}</p>
-      <p class="text-base font-normal opacity-50">
+      <p>
+        {{
+          (flags.display_names && authenticatedUser.displayname) ||
+            authenticatedUser.name
+        }}
+      </p>
+      <p class="text-base font-normal opacity-50" v-if="flags.display_names">
         @{{ authenticatedUser.name }}
       </p>
     </div>
@@ -127,6 +132,10 @@ export default class Home extends Vue {
   }
   get friendGames(): GameListResponse {
     return this.$store.getters["games/friendActivitySort"] ?? [];
+  }
+
+  get flags() {
+    return this.$store.state["flags"];
   }
 }
 </script>

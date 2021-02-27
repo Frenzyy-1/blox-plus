@@ -15,7 +15,7 @@
           class="text-center truncate text font-semibold max-w-full"
           :class="{ 'opacity-50': !friend.isOnline }"
         >
-          {{ friend.displayName }}
+          {{ (flags.display_names && friend.displayName) || friend.name }}
         </p>
         <p
           class="text-center truncate font-semibold text-sm text-text-tertiary opacity-75"
@@ -40,11 +40,11 @@
       </div>
     </router-link>
     <VueContext ref="menu" :close-on-click="false" :lazy="true">
-      <div v-if="friend.displayName !== friend.name">
+      <div v-if="friend.displayName !== friend.name && flags.display_names">
         <p class="font-bold">{{ friend.displayName }}</p>
         <p class="opacity-50">@{{ friend.name }}</p>
       </div>
-      <p v-else class="font-bold">{{ friend.displayName }}</p>
+      <p v-else class="font-bold">{{ friend.name }}</p>
       <div v-if="friend.presence.userPresenceType === 3">
         <hr />
         <button
@@ -84,7 +84,11 @@ import { Component, Vue } from "vue-property-decorator";
     }
   }
 })
-export default class FriendCard extends Vue {}
+export default class FriendCard extends Vue {
+  get flags() {
+    return this.$store.state["flags"];
+  }
+}
 </script>
 
 <style scoped></style>
