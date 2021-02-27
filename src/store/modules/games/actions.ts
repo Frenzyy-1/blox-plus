@@ -13,14 +13,12 @@ const lastFetch: {
 
 export const actions: ActionTree<GamesState, RootState> = {
   async fetchGame({ commit }, gameId: number): Promise<void> {
-    console.log("fetchGame -> " + gameId);
     if (
       lastFetch.fetchGame[gameId] &&
       new Date().getUTCMinutes() - 10 <
         lastFetch.fetchGame[gameId].getUTCMinutes()
     )
       return;
-    console.log("fetchGame(" + gameId + ")");
     lastFetch.fetchGame[gameId] = new Date();
     let response: MultiGetPlaces | undefined;
     try {
@@ -42,7 +40,6 @@ export const actions: ActionTree<GamesState, RootState> = {
       response = await bloxyClient.apis.gamesAPI.getMultiPlaces({
         placeIds: payload.map(_payload => _payload.placeId)
       });
-      console.log(response);
     } catch (err) {
       console.error(err);
     }

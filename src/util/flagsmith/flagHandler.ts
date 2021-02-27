@@ -18,7 +18,6 @@ class Flagsmith {
 
   private async flagChange(flags: IFlags, params: IRetrieveInfo) {
     VueX.commit("flagsChanged", flags);
-    console.log("flags updated");
   }
 }
 

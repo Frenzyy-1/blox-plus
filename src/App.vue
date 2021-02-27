@@ -85,7 +85,6 @@ export default class App extends Vue {
       if (ipcStoredCookie.usesPassword) {
         this.showMasterPasswordPrompt = true;
       } else {
-        console.log(ipcStoredCookie);
         this.setCookie({ cookie: ipcStoredCookie.cookie });
       }
     } else {
