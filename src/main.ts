@@ -1,5 +1,4 @@
 import Vue from "vue";
-import flagsmith from "flagsmith-nodejs";
 import router from "./router";
 import store from "./store/index";
 
@@ -33,10 +32,6 @@ async function main() {
   // await bloxyClient.getUser(bloxyClient.user ? bloxyClient.user.id : 1);
 
   applyTheme();
-
-  flagsmith.init({
-    environmentID: process.env.VUE_APP_FLAGSMITH_ENVIRONMENT_ID || ""
-  });
 
   new Vue({
     router,
