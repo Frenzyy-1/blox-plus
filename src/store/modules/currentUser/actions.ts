@@ -22,7 +22,7 @@ export const actions: ActionTree<CurrentUserState, RootState> = {
     lastFetch.fetchCurrentUser = new Date();
     const patchedData: User = {
       name: bloxyClient.user.name as string,
-      displayname: bloxyClient.user.name as string,
+      displayname: bloxyClient.user.displayName as string,
       id: bloxyClient.user.id,
       membership: bloxyClient.user.membership
     } as User;
