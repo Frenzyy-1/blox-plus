@@ -118,8 +118,6 @@ class QuickLogin extends EventEmitter {
       }
     );
 
-    console.log(this);
-
     if (request.statusCode === 200) {
       if (
         request.body.status !== this.status &&

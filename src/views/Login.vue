@@ -102,7 +102,6 @@ export default class Login extends Vue {
     const value = (await flagsmith
       .hasFeature("quick_login_enabled")
       .catch(err => console.error(err))) as boolean;
-    console.log(value);
     if (value !== undefined && value === true) {
       this.quickLoginEnabled = value;
       this.mode = "code";
@@ -133,10 +132,10 @@ export default class Login extends Vue {
     privateKey: string;
     status: AuthTokenStatus;
   }) {
-    // TODO Use authorization to handle the auth
+    // TODO Check how to bypass "you need to complete the anti bot test" thingy
     const { code, privateKey, status } = quickLoginAuthData;
     this.quickLoginState = QuickLogin.convertStatusToNumber(status);
-    const request = quickCodeLogin(code, privateKey);
+    quickCodeLogin(code, privateKey);
   }
 }
 </script>
