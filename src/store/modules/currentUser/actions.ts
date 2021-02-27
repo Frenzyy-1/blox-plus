@@ -2,6 +2,7 @@ import { ActionTree } from "vuex";
 import { CurrentUserState, Friend, User } from "./types";
 import { RootState } from "../../types";
 import bloxyClient from "@/util/bloxyClient";
+import { chunk } from "lodash";
 
 const lastFetch: {
   fetchCurrentUser?: Date;
@@ -56,29 +57,35 @@ export const actions: ActionTree<CurrentUserState, RootState> = {
     friends.forEach(friend => {
       patchedFriends[friend.id] = friend as Friend;
     });
+
     const userIds = Object.values(patchedFriends).map(v => v.id);
-    const thumbnails = (
-      await bloxyClient.apis.thumbnailsAPI.getUsersAvatarHeadShotImages({
-        userIds,
-        isCircular: false,
-        size: "150x150",
-        format: "png"
-      })
-    ).data;
-    thumbnails.forEach(thumbnail => {
-      if (patchedFriends[thumbnail.targetId])
-        patchedFriends[thumbnail.targetId].thumbnail = thumbnail.imageUrl;
-    });
-    const presences = (
-      await bloxyClient.apis.presenceAPI.getUsersPresences({
-        userIds
-      })
-    ).userPresences;
-    presences.forEach(presence => {
-      if (presence.userPresenceType === 3) presence.userPresenceType = 2;
-      else if (presence.userPresenceType === 2) presence.userPresenceType = 3;
-      patchedFriends[presence.userId].presence = presence;
-    });
+    const partitionedUserIds = chunk(userIds, 25);
+    for (const partitionedUserIdChunk of partitionedUserIds) {
+      const thumbnails = (
+        await bloxyClient.apis.thumbnailsAPI.getUsersAvatarHeadShotImages({
+          userIds: partitionedUserIdChunk,
+          isCircular: false,
+          size: "150x150",
+          format: "png"
+        })
+      ).data;
+      thumbnails.forEach(thumbnail => {
+        if (patchedFriends[thumbnail.targetId])
+          patchedFriends[thumbnail.targetId].thumbnail = thumbnail.imageUrl;
+      });
+    }
+
+    for (const partitionedUserIdChunk of partitionedUserIds) {
+      const presences = (
+        await bloxyClient.apis.presenceAPI.getUsersPresences({
+          userIds: partitionedUserIdChunk
+        })
+      ).userPresences;
+      presences.forEach(presence => {
+        patchedFriends[presence.userId].presence = presence;
+      });
+    }
+
     const sortedPatchedFriends = Object.values(
       patchedFriends
     ).sort((val1, val2) =>
