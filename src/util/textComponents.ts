@@ -11,6 +11,7 @@ const MATCHES: MATCHINTERFACE = {
   game: /(?:https:\/\/)?(?:web|www).roblox.com\/games\/(?<gameId>[0-9]+)\/[^ \n]+/gi,
   user: /(?:https:\/\/)?(?:web|www).roblox.com\/users\/(?<gameId>[0-9]+)\/[^ \n]+/gi
   // TODO: Add more matches for other parts of the site
+  // * Gamepasses, Catalog, etc..
 };
 
 type IMATCHKEYS = keyof MATCHINTERFACE;
