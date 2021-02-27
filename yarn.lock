@@ -2413,7 +2413,7 @@ block-stream@*:
   dependencies:
     inherits "~2.0.0"
 
-bloxy@^5.7.1:
+bloxy@^5.7.3:
   version "5.7.3"
   resolved "https://registry.yarnpkg.com/bloxy/-/bloxy-5.7.3.tgz#0413ee8632f0d4ace93300c2fc1e5ce542c9ba55"
   integrity sha512-uPPUtr4bQhmtftN/x0GUvpw2xjRTjk8XC1R4UMPPt8kJGlubM5dQ6ZUCbo7RHe7iPhbbTcR+hYpwOz2t7VJv9A==
@@ -5008,6 +5008,13 @@ find-up@^4.0.0, find-up@^4.1.0:
     locate-path "^5.0.0"
     path-exists "^4.0.0"
 
+flagsmith-nodejs@^1.0.8:
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/flagsmith-nodejs/-/flagsmith-nodejs-1.0.8.tgz#0b56629a3854f45f3a82375b9bf51e78a6b31763"
+  integrity sha512-8P61TYk9odceeczMT7Ex2UGTQe86fYbF7g4oWtLCcR/aIc6rn0OZQQxSRRxwlcararL4EcCJDjJdsvYddxudDw==
+  dependencies:
+    node-fetch "^2.1.2"
+
 flat-cache@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/flat-cache/-/flat-cache-2.0.1.tgz#5d296d6f04bda44a4630a301413bdbc2ec085ec0"
@@ -7446,6 +7453,11 @@ node-emoji@^1.8.1:
   integrity sha512-Yt3384If5H6BYGVHiHwTL+99OzJKHhgp82S8/dktEK73T26BazdgZ4JZh92xSVtGNJvz9UbXdNAc5hcrXV42vw==
   dependencies:
     lodash.toarray "^4.4.0"
+
+node-fetch@^2.1.2:
+  version "2.6.1"
+  resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.1.tgz#045bd323631f76ed2e2b55573394416b639a0052"
+  integrity sha512-V4aYg89jEoVRxRb2fJdAg8FHvI7cEyYdVAh94HH0UIK8oJxUfkjlDQN9RbMx+bEjP7+ggMiFRprSti032Oipxw==
 
 node-forge@^0.10.0:
   version "0.10.0"

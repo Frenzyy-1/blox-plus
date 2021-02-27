@@ -56,6 +56,7 @@ const bloxyClient = new Client({
     requester: async requestOptions => {
       if (!requestOptions.headers) requestOptions.headers = {};
       requestOptions.headers["Cookie"] += `; ${headers.cookie}`;
+      console.log(requestOptions);
       const res = await fetchDataAsync<AxiosResponse>(requestOptions);
       updateHeaders(res);
       return res as RESTResponseDataType;

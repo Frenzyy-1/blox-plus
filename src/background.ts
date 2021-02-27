@@ -9,7 +9,7 @@ import {
 } from "electron";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import installExtension, { VUEJS_DEVTOOLS } from "electron-devtools-installer";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 const isDevelopment = process.env.NODE_ENV !== "production";
 
 // Set axios defaults
@@ -111,13 +111,13 @@ interface APIHistoryEntry {
   status: number;
   method: string;
   url: string;
-  key: string;
+  key?: string;
 }
 
 const apiHistory: APIHistoryEntry[] = [];
 const getAPIHistory = () => apiHistory;
 
-async function axiosRequest(
+async function axiosRequestLegacy(
   event: Electron.IpcMainEvent,
   randomId: string,
   /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
@@ -159,12 +159,62 @@ async function axiosRequest(
     });
 }
 
+/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+async function axiosRequest(event: Electron.IpcMainInvokeEvent, data: any) {
+  data.data = data.body;
+  const response: AxiosResponse<any> = await axios(data).catch(
+    error => error.response
+  );
+  if (!response) return {};
+  apiHistory.push({
+    status: response.status,
+    method: data.method,
+    url: data.url
+  });
+  return {
+    statusCode: response.status,
+    body: response.data,
+    headers: response.headers
+  };
+  // axios(data)
+  //   .then(response => {
+  //     apiHistory.push({
+  //       status: response.status,
+  //       method: data.method,
+  //       url: data.url
+  //     });
+  //     return {
+  //       statusCode: response.status,
+  //       body: response.data,
+  //       headers: response.headers
+  //     };
+  //   })
+  //   .catch(error => {
+  //     if (error.response) {
+  //       apiHistory.push({
+  //         status: error.response.status,
+  //         method: data.method,
+  //         url: data.url
+  //       });
+  //       console.log(`[AXIOS/${error.response.status}] ${error.message}`);
+  //       console.log(error.response.data);
+  //       return {
+  //         statusCode: error.response.status,
+  //         body: error.response.data,
+  //         headers: error.response.headers,
+  //         isError: true
+  //       };
+  //     }
+  //   });
+}
+
 /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 function retrieveRobloxCookie(event: Electron.IpcMainInvokeEvent) {
   return undefined;
 }
 
-ipc.on("axiosRequest", axiosRequest);
+ipc.on("axiosRequest", axiosRequestLegacy);
+ipc.handle("axios", axiosRequest);
 ipc.handle("getApiHistory", getAPIHistory);
 ipc.handle("retrieveRobloxCookie", retrieveRobloxCookie);
 
