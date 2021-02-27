@@ -1,3 +1,5 @@
+import { EnumUserPresence } from "bloxy/dist/interfaces/GeneralInterfaces";
+
 export interface CurrentUserState {
   dataFetched: boolean;
   user?: User;
@@ -39,5 +41,5 @@ export interface PresenceData {
   rootPlaceId: number;
   universeId: number;
   userId: number;
-  userPresenceType: UserPresenceType;
+  userPresenceType: EnumUserPresence;
 }
