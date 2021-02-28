@@ -91,7 +91,7 @@ let updateDataInterval: NodeJS.Timeout;
     return { banContinued: false };
   }
 })
-export default class App extends Vue {
+export default class BloxPlus extends Vue {
   mounted() {
     this.$store.dispatch("currentUser/fetchCurrentUser");
   }

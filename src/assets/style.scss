@@ -28,6 +28,10 @@ html {
 }
 
 .dark {
+  *::-webkit-scrollbar {
+    @apply bg-dark-600;
+  }
+
   *::-webkit-scrollbar-track {
     @apply bg-dark-600;
   }

@@ -22,10 +22,15 @@ export const actions: ActionTree<CurrentUserState, RootState> = {
     lastFetch.fetchCurrentUser = new Date();
     const patchedData: User = {
       name: bloxyClient.user.name as string,
-      displayname: bloxyClient.user.displayName as string,
+      displayName: bloxyClient.user.displayName as string,
       id: bloxyClient.user.id,
       membership: bloxyClient.user.membership
     } as User;
+    // Temporary solution until bloxy actually gets displayName
+    const userButApi = await bloxyClient.apis.usersAPI.getUserById({
+      userId: bloxyClient.user.id
+    });
+    patchedData.displayName = userButApi.displayName;
     const thumbnails = (
       await bloxyClient.apis.thumbnailsAPI.getUsersAvatarHeadShotImages({
         userIds: [bloxyClient.user.id],

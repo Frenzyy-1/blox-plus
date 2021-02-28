@@ -8,7 +8,7 @@ export interface CurrentUserState {
 
 export interface User {
   name: string;
-  displayname: string;
+  displayName: string;
   id: number;
   membership: unknown;
   thumbnail: string;

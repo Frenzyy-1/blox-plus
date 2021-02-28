@@ -1,13 +1,21 @@
 <template>
   <div>
     <router-link
+      class="group relative"
       :to="`/users/${friend.id}`"
       @contextmenu.native.prevent="$refs.menu.open"
     >
-      <div class="mx-auto max-w-full">
+      <div
+        class="mx-auto max-w-full p-2 -mt-2 rounded-lg group-hover:bg-light-500 dark:group-hover:bg-dark-600 transition-colors duration-200"
+      >
         <img
-          class="h-16 w-16 rounded-full mx-auto border-2 bg-light-500 border-light-600 dark:bg-dark-500 dark:border-dark-600 transition duration-200"
-          :class="{ 'opacity-50': !friend.isOnline }"
+          class="h-16 w-16 rounded-full group-hover:shadow-none mx-auto bg-light-500 dark:bg-dark-600"
+          :class="{
+            'opacity-50': !friend.isOnline,
+            'border-2 border-light-600 dark:border-dark-600':
+              flags.render_avatar_borders,
+            'shadow-md': !flags.render_avatar_borders
+          }"
           :src="friend.thumbnail"
           alt=""
         />
@@ -22,12 +30,12 @@
           v-show="showStatus"
         >
           <span
-            v-if="friend.presence.userPresenceType == 2"
+            v-if="friend.presence.userPresenceType == 3"
             class="text-orange-600 dark:text-orange-400"
             >Studio</span
           >
           <span
-            v-if="friend.presence.userPresenceType == 3"
+            v-if="friend.presence.userPresenceType == 2"
             class="text-green-700 dark:text-green-500"
             >Playing</span
           >
@@ -45,11 +53,12 @@
         <p class="opacity-50">@{{ friend.name }}</p>
       </div>
       <p v-else class="font-bold">{{ friend.name }}</p>
-      <div v-if="friend.presence.userPresenceType === 3">
+      <div v-if="friend.presence.userPresenceType === 2">
         <hr />
         <button
-          v-if="friend.presence.userPresenceType == 3"
+          v-if="friend.presence.userPresenceType == 2"
           class="context-success"
+          @click.prevent="join"
         >
           Join Game
         </button>
@@ -68,7 +77,8 @@
 
 <script lang="ts">
 import VueContext from "vue-context";
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue } from "vue-property-decorator";
+import { followPlayerIntoGame } from "@/util/roblox/playerProtocolHandler";
 
 @Component({
   components: { VueContext },
@@ -85,6 +95,14 @@ import { Component, Vue } from "vue-property-decorator";
   }
 })
 export default class FriendCard extends Vue {
+  @Prop({ required: true })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  friend!: any;
+
+  join() {
+    followPlayerIntoGame({ userId: this.friend.id });
+  }
+
   get flags() {
     return this.$store.state["flags"];
   }

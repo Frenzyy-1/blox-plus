@@ -53,7 +53,13 @@ module.exports = {
     }
   },
   variants: {
-    extend: {}
+    extend: {
+      display: ["group-hover", "group-focus"],
+      borderRadius: ["group-hover", "group-focus"],
+      boxShadow: ["group-hover", "group-focus"],
+      padding: ["group-hover", "group-focus"],
+      margin: ["group-hover", "group-focus"]
+    }
   },
   plugins: []
 };

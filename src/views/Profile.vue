@@ -2,8 +2,7 @@
   <div>
     <div class="md:flex md:flex-row">
       <div
-        class="relative shadow-lg flex-shrink-0 flex-grow-0 user-card mb-8 md:mb-0 mx-auto w-full max-h-96 rounded-lg p-4 overflow-hidden bg-cover bg-no-repeat bg-center md:h-screen md:max-h-screen md:mx-0 md:w-80 max-w-96 bg-light-500"
-        style="background-image: url('https://cdn.discordapp.com/attachments/754759881436692570/800161722085802054/AvatarEditor_LightTheme.png')"
+        class="avatar-background relative shadow-lg flex-shrink-0 flex-grow-0 user-card mb-8 md:mb-0 mx-auto w-full max-h-96 rounded-lg p-4 overflow-hidden bg-cover bg-no-repeat bg-center md:h-screen md:max-h-screen md:mx-0 md:w-80 max-w-96 bg-light-500"
       >
         <p class="font-bold text-lg">{{ user ? displayName : "" }}</p>
         <p
@@ -345,7 +344,7 @@ export default class UserProfile extends Vue {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .max-w-96 {
   max-width: 24rem;
 }
@@ -376,5 +375,15 @@ export default class UserProfile extends Vue {
 
 .presence-1 {
   @apply text-blue-600;
+}
+
+.dark {
+  .avatar-background {
+    background-image: url("https://cdn.discordapp.com/attachments/754759881436692570/815187795369918464/AvatarEditor.png");
+  }
+}
+
+.avatar-background {
+  background-image: url("https://cdn.discordapp.com/attachments/754759881436692570/800161722085802054/AvatarEditor_LightTheme.png");
 }
 </style>

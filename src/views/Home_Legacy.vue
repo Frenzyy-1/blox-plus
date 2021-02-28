@@ -70,7 +70,7 @@
 import { Component, Vue } from "vue-property-decorator";
 import { GameListResponse } from "@/ts/interfaces";
 import { orderBy } from "lodash";
-import FriendCard from "@/components/home/FriendCard.vue";
+import FriendCard from "@/components/home_legacy/FriendCard.vue";
 import GameCard from "@/components/gameList/GameCard.vue";
 import HomeGameList from "@/components/gameList/HomeGameList.vue";
 import { ChevronRightIcon } from "vue-feather-icons";
