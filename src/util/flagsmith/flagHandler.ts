@@ -14,7 +14,23 @@ class Flagsmith {
     await flagsmith.init({
       environmentID: process.env.VUE_APP_FLAGSMITH_ENVIRONMENT_ID || "",
       cacheFlags: false,
-      onChange: this.flagChange.bind(this)
+      onChange: this.flagChange.bind(this),
+      /* eslint-disable @typescript-eslint/camelcase */
+      defaultFlags: {
+        display_names: {
+          enabled: true
+        },
+        edit_display_name: {
+          enabled: false
+        },
+        quick_login_enabled: {
+          enabled: false
+        },
+        quick_login_external_window: {
+          enabled: false
+        }
+      }
+      /* eslint-enable @typescript-eslint/camelcase */
     });
     flagsmith.startListening(60000);
   }
