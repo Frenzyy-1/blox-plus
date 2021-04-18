@@ -17,6 +17,13 @@
           />
           <button @click.prevent="submit" class="login">Log In</button>
         </div>
+        <button
+          class="change-mode mt-2"
+          v-if="isQuickLoginEnabled"
+          @click.prevent="switchQuickLogin"
+        >
+          Use Quick Login
+        </button>
       </div>
       <div v-else-if="mode === 'code'">
         <h1 class="title">Quick Login</h1>
@@ -50,6 +57,30 @@
           />
         </div>
       </div>
+      <div v-else-if="mode == 'twoStep'">
+        <h1 class="title">Two Step Verification</h1>
+        <p>
+          Roblox requested you to verify your identity via
+          <b>{{ twoStepVerificationType }}</b
+          >.
+        </p>
+        <div v-if="twoStepVerificationType === 'Email'">
+          <div class="group">
+            <input
+              type="text"
+              v-model="twoStepVerificationEmailCode"
+              placeholder="Code"
+              class="input"
+            />
+            <button
+              @click.prevent="performTwoStepVerificationEmail"
+              class="login"
+            >
+              Submit
+            </button>
+          </div>
+        </div>
+      </div>
       <div v-else>
         <p>Please wait, fetching flags..</p>
       </div>
@@ -67,6 +98,8 @@ import QuickLoginClass, {
 } from "@/util/roblox/quickLogin";
 import { shell } from "electron";
 import { quickCodeLogin } from "@/util/roblox/authorization";
+import bloxyClient from "@/util/bloxyClient";
+import { RESTResponseDataType } from "node_modules/bloxy/dist/interfaces/RESTInterfaces";
 
 const QuickLogin = new QuickLoginClass();
 
@@ -84,7 +117,7 @@ const QuickLogin = new QuickLoginClass();
   }
 })
 export default class Login extends Vue {
-  mode = "";
+  mode: "cookie" | "code" | "twoStep" | "" = "";
   cookie = "";
 
   quickLoginEnabled = false;
@@ -94,6 +127,16 @@ export default class Login extends Vue {
   quickLoginAccountName = "";
   quickLoginAccountProfilePicture = "";
 
+  twoStepVerification = false;
+  twoStepVerificationType: "Email" | "" = "";
+  twoStepVerificationTicket = "";
+  twoStepVerificationEmailCode = "";
+  twoStepVerificationUser: {
+    displayName?: string;
+    id?: number;
+    name?: string;
+  } = {};
+
   submit() {
     this.$emit("login", this.cookie);
   }
@@ -101,14 +144,28 @@ export default class Login extends Vue {
   private async performFlagsmith() {
     const value = (await flagsmith
       .hasFeature("quick_login_enabled")
-      .catch(err => console.error(err))) as boolean;
+      .catch(err => console.warn(err))) as boolean;
     if (value !== undefined && value === true) {
-      this.quickLoginEnabled = value;
-      this.mode = "code";
-      this.quickLoginStart();
+      this.switchQuickLogin();
     } else {
-      this.mode = "cookie";
+      this.switchCookieLogin();
     }
+  }
+
+  private async switchQuickLogin() {
+    if (!this.isQuickLoginEnabled) return;
+    this.quickLoginEnabled = this.isQuickLoginEnabled;
+    this.mode = "code";
+    this.quickLoginStart();
+  }
+
+  private async switchCookieLogin() {
+    if (this.mode === "code") QuickLogin.stopFlow();
+    this.mode = "cookie";
+  }
+
+  get isQuickLoginEnabled() {
+    return this.$store.state.flags.quick_login_enabled ?? false;
   }
 
   private async quickLoginStart() {
@@ -135,7 +192,74 @@ export default class Login extends Vue {
     // TODO Check how to bypass "you need to complete the anti bot test" thingy
     const { code, privateKey, status } = quickLoginAuthData;
     this.quickLoginState = QuickLogin.convertStatusToNumber(status);
-    quickCodeLogin(code, privateKey);
+    const loginStatus = await quickCodeLogin(code, privateKey);
+    if (loginStatus) {
+      if (loginStatus.statusCode === 200) {
+        if (loginStatus.body.twoStepVerificationData) {
+          this.mode = "twoStep";
+          this.twoStepVerification = true;
+          this.twoStepVerificationUser = loginStatus.body.user;
+          if (loginStatus.body.twoStepVerificationData.mediaType === "Email") {
+            this.twoStepVerificationType = "Email";
+            this.twoStepVerificationTicket =
+              loginStatus.body.twoStepVerificationData.ticket;
+          }
+        } else {
+          this.loginViaSetCookieHeader(loginStatus);
+        }
+      }
+    }
+  }
+
+  async performTwoStepVerificationEmail() {
+    const response = await bloxyClient.rest
+      .request({
+        url: `https://twostepverification.roblox.com/v1/users/${this.twoStepVerificationUser.id}/challenges/email/verify`,
+        json: {
+          challengeId: this.twoStepVerificationTicket,
+          actionType: "Login",
+          code: this.twoStepVerificationEmailCode
+        },
+        method: "POST"
+      })
+      .catch(err => console.error(err));
+    if (response && response.statusCode === 200) {
+      console.log("success");
+      console.log(response);
+      const { verificationToken } = response.body;
+      this.exchangeTwoStepVerificationToken(verificationToken);
+    } else {
+      console.log(response);
+    }
+  }
+
+  private async exchangeTwoStepVerificationToken(verificationToken: string) {
+    const response = await bloxyClient.rest
+      .request({
+        url: `https://auth.roblox.com/v3/users/${this.twoStepVerificationUser.id}/two-step-verification/login`,
+        json: {
+          challengeId: this.twoStepVerificationTicket,
+          rememberDevice: true,
+          verificationToken
+        },
+        method: "POST"
+      })
+      .catch(err => console.error(err));
+    console.log(response);
+    this.loginViaSetCookieHeader(response);
+  }
+
+  private async loginViaSetCookieHeader(response: void | RESTResponseDataType) {
+    if (response && response.statusCode === 200) {
+      const setCookies = response.headers["set-cookie"];
+      for (const setCookie of setCookies) {
+        if (setCookie.startsWith(".ROBLOSECURITY")) {
+          const split = setCookie.split(";");
+          const loginCookie = split[0].split(".ROBLOSECURITY=");
+          this.$emit("login", loginCookie[1]);
+        }
+      }
+    }
   }
 }
 </script>
@@ -155,7 +279,8 @@ export default class Login extends Vue {
     @apply bg-dark-500;
 
     .input,
-    .login {
+    .login,
+    .change-mode {
       @apply bg-dark-400;
       @apply border-dark-300;
     }
@@ -206,6 +331,19 @@ export default class Login extends Vue {
     @apply border-light-400;
     @apply bg-light-200;
     @apply rounded-r-lg;
+
+    &:focus {
+      @apply outline-none;
+    }
+  }
+
+  .change-mode {
+    @apply px-4;
+    @apply py-2;
+    @apply border-2;
+    @apply border-light-400;
+    @apply bg-light-200;
+    @apply rounded-lg;
 
     &:focus {
       @apply outline-none;

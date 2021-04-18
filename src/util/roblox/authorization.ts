@@ -16,7 +16,7 @@ export async function quickCodeLogin(code: string, privateKey: string) {
         password: privateKey
       }
     })
-    .catch(error => console.error(error));
+    .catch(error => console.warn(error));
 
   console.log(response);
 
