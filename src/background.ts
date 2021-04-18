@@ -5,12 +5,14 @@ import {
   protocol,
   BrowserWindow,
   ipcMain as ipc,
-  session
+  session,
+  BrowserView
 } from "electron";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import installExtension, { VUEJS_DEVTOOLS } from "electron-devtools-installer";
 import axios, { AxiosResponse } from "axios";
 import Store from "electron-store";
+import { UnresolvedLoginCaptcha } from "./electronUtil/ElectronCaptcha";
 const isDevelopment = process.env.NODE_ENV !== "production";
 
 const store = new Store();
@@ -231,6 +233,38 @@ ipc.handle("axios", axiosRequest);
 ipc.handle("getApiHistory", getAPIHistory);
 ipc.handle("saveRobloxCookie", saveRobloxCookie);
 ipc.handle("retrieveRobloxCookie", retrieveRobloxCookie);
+
+ipc.handle(
+  "retrieveLoginCaptchaToken",
+  (_event, data: { fieldData: string }) => {
+    return new Promise(async (resolve, reject) => {
+      // Thanks @jmkd3v or helping me on this one
+      const captcha_req = await axios({
+        url: `https://roblox-api.arkoselabs.com/fc/gt2/public_key/476068BF-9607-4799-B53D-966BE98E2B81`,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+        },
+        data: `public_key=476068BF-9607-4799-B53D-966BE98E2B81&data[blob]=${data.fieldData}`
+      });
+      const unresolvedLoginCaptcha = new UnresolvedLoginCaptcha(
+        captcha_req.data,
+        "476068BF-9607-4799-B53D-966BE98E2B81"
+      );
+      const view = new BrowserView({
+        webPreferences: {
+          devTools: true
+        }
+      });
+      if (win) {
+        win.setBrowserView(view);
+        view.setBounds({ x: 0, y: 0, width: 300, height: 300 });
+        view.webContents.loadURL(unresolvedLoginCaptcha.url);
+      } else {
+        reject("The BrowserWindow does not exist");
+      }
+    });
+  }
+);
 
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {

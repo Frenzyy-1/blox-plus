@@ -96,7 +96,7 @@ import QuickLoginClass, {
   AuthTokenStatus,
   QuickLoginStateChange
 } from "@/util/roblox/quickLogin";
-import { shell } from "electron";
+import { ipcRenderer, shell } from "electron";
 import { quickCodeLogin } from "@/util/roblox/authorization";
 import bloxyClient from "@/util/bloxyClient";
 import { RESTResponseDataType } from "node_modules/bloxy/dist/interfaces/RESTInterfaces";
@@ -207,6 +207,9 @@ export default class Login extends Vue {
         } else {
           this.loginViaSetCookieHeader(loginStatus);
         }
+      } else if (loginStatus.statusCode === 403) {
+        const fieldData = loginStatus.body.errors[0].fieldData;
+        await ipcRenderer.invoke("retrieveCaptchaToken", { fieldData });
       }
     }
   }
@@ -244,7 +247,7 @@ export default class Login extends Vue {
         },
         method: "POST"
       })
-      .catch(err => console.error(err));
+      .catch(err => console.warn(err));
     console.log(response);
     this.loginViaSetCookieHeader(response);
   }
