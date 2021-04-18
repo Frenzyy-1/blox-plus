@@ -1,5 +1,4 @@
 import bloxyClient from "@/util/bloxyClient";
-import { ipcRenderer } from "electron";
 
 export interface AuthenticationState {
   complete: boolean;
